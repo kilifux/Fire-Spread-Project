@@ -1,7 +1,7 @@
 namespace Data
 {
 
-    public class MaterialProperties
+    public class MaterialData
     {
         public float LowHeatContent; // zawartoœæ energetyczna
         public float MineralContent;
@@ -12,7 +12,7 @@ namespace Data
         public float FuelBedDepth;
         public float BurnedFuelMoisture;
 
-        public MaterialProperties(float lowHeatContent, float mineralContent, float effectiveMineralContent,
+        public MaterialData(float lowHeatContent, float mineralContent, float effectiveMineralContent,
                float burnedParticleDensity, float surfaceAreaToVolumeRatio, float burnedFuelLoad, float fuelBedDepth,
                float burnedFuelMoisture)
         {
@@ -26,9 +26,9 @@ namespace Data
             BurnedFuelMoisture = burnedFuelMoisture;
         }
 
-        public MaterialProperties Clone()
+        public MaterialData Clone()
         {
-            return new MaterialProperties(LowHeatContent, MineralContent, EffectiveMineralContent, BurnedParticleDensity, SurfaceAreaToVolumeRatio, BurnedFuelLoad, FuelBedDepth, BurnedFuelMoisture);
+            return new MaterialData(LowHeatContent, MineralContent, EffectiveMineralContent, BurnedParticleDensity, SurfaceAreaToVolumeRatio, BurnedFuelLoad, FuelBedDepth, BurnedFuelMoisture);
         }
     }
 }
