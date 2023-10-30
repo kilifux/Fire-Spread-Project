@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class EnvironmentData : MonoBehaviour
 {
-    public float Moisture { get; }
-    public float Wind { get; }
+    public float Moisture { get; } // wilgotnoœæ powietrza
+    public float Wind { get; } // prêdkoœæ wiatru 
 
     public EnvironmentData(float moisture, float wind) {
         Moisture = moisture;
