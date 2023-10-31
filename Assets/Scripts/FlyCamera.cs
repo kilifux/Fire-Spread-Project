@@ -7,6 +7,8 @@ public class FlyCamera : MonoBehaviour
     float shiftAdd = 150.0f; //multiplied by how long shift is held.  Basically running
     float maxShift = 250.0f; //Maximum speed when holding shift
     private float totalRun= 1.0f;
+    
+    
      
     void Update () 
     {
