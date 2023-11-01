@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Data;
 using System.Collections.Generic;
@@ -22,24 +23,6 @@ public class TileTypesPanel : MonoBehaviour
 
     private GameObject _buttonHighlight;
     private bool _isInEditMode;
-
-
-
-
-
-    private void GenerateButtonsForTileTypes()
-    {
-        TerrainType[] terrainTypesValues = MaterialPropertiesFactory.GetAllowedInitialTerrainTypes();
-        
-    }
-
     
-    private void InitTerrainTypeMaterialProperties(TerrainType[] terrainTypesValues)
-    {
-        foreach (TerrainType terrainType in terrainTypesValues)
-        {
-            MaterialProperties materialProperties = MaterialPropertiesFactory.GetProperties(terrainType);
-            _materialProperties.Add(terrainType, materialProperties);
-        }
-    }
+
 }

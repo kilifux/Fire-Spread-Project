@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Data;
 using Random = UnityEngine.Random;
 
 public class TileMapGenerator
@@ -78,10 +81,36 @@ public class TileMapGenerator
         }
     }
     
+    public Vector3[] GetTrianglesOfATile(Vector2Int coordinates, Vector3[] meshVertices)
+    {
+        Vector3[] result = new Vector3[4];
+        result[0] = meshVertices[coordinates.y * (_sizeX + 1) + coordinates.x];
+        result[1] = meshVertices[coordinates.y * (_sizeX + 1) + coordinates.x + 1];
+        result[2] = meshVertices[(coordinates.y + 1) * (_sizeX + 1) + coordinates.x];
+        result[3] = meshVertices[(coordinates.y + 1) * (_sizeX + 1) + coordinates.x + 1];
+
+        return result;
+    }
+    
     private int GetTriangleIndex(int x, int y)
     {
         int squareIndex = y * _sizeX + x;
         int triangleIndex = squareIndex * 6;
         return triangleIndex;
+    }
+    
+    private float GetMeanVertexHeight(int vertexX, int vertexY, TileMapData tileMapData)
+    {
+        List<TileData> tiles = new List<TileData>();
+        
+        tiles.Add(tileMapData.GetTileData(vertexX - 1, vertexY - 1));
+        tiles.Add(tileMapData.GetTileData(vertexX - 1, vertexY));
+        tiles.Add(tileMapData.GetTileData(vertexX, vertexY));
+        tiles.Add(tileMapData.GetTileData(vertexX, vertexY - 1));
+        
+        tiles.RemoveAll(item => item == null);
+        float sum = tiles.Sum(data => data.TerrainData.Height);
+        
+        return sum / tiles.Count;
     }
 }

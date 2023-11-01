@@ -9,11 +9,15 @@ using UnityEngine;
 public class TileMap : MonoBehaviour
 {
     [SerializeField] private int sizeX = 24;
-    [SerializeField] private int sizeZ = 24;
+    [SerializeField] private int sizeY = 24;
     [SerializeField] private float tileSize = 8f;
+    [SerializeField] private int tileResolution = 16;
 
     [SerializeField] private TileGUIInfo tileGUIInfo;
     [SerializeField] private TileMapData _tileMapData;
+    [SerializeField] private TileTypesPanel _tileTypesPanel;
+    
+    [SerializeField] private Texture2D textureAtlas;
     
     
     private MeshFilter _meshFilter;
@@ -23,21 +27,32 @@ public class TileMap : MonoBehaviour
 
     private void Awake()
     {
-        
         _meshFilter = GetComponent<MeshFilter>();
         _meshRenderer = GetComponent<MeshRenderer>();
         _meshCollider = GetComponent<MeshCollider>();
         _camera = Camera.main;
     }
 
-    void Start()
+    public void InitTileMap(int _sizeX, int _sizeY, TileMapData tileMapData)
+    {
+        sizeX = _sizeX;
+        sizeY = _sizeY;
+        _tileMapData = tileMapData;
+        
+        BuildMap();
+        BuildTexture();
+    }
+
+    private void Start()
     {
         BuildMap();
+        BuildTexture();
     }
-    
+
+
     void BuildMap()
     {
-        TileMapGenerator tileMapGenerator = new TileMapGenerator(sizeX, sizeZ, tileSize);
+        TileMapGenerator tileMapGenerator = new TileMapGenerator(sizeX, sizeY, tileSize);
 
         Mesh mesh = tileMapGenerator.GenerateMap();
         _meshFilter.mesh = mesh;
@@ -46,8 +61,21 @@ public class TileMap : MonoBehaviour
 
     private void OnMouseDown()
     {
-        TileData tileUnderMouse = GetTileUnderMouse();
-        Debug.Log(tileUnderMouse.TerrainData.Type.ToString());
+        /*TileData tileUnderMouse = GetTileUnderMouse();
+        if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && _tileTypesPanel.IsButtonSelected())
+        {
+            TerrainType currentlySelectedTerrainType = _tileTypesPanel.CurrentlySelectedTerrainType;
+            tileUnderMouse.TerrainData.Type = currentlySelectedTerrainType;
+            tileUnderMouse.TerrainData.MaterialProperties = _tileTypesPanel.GetPropertiesForCurrentSelection();
+
+            //ResetBurningDistance(tileUnderMouse);
+            UpdateTexture(tileUnderMouse);
+            tileUnderMouse.IsBurning = false;
+        }
+        else
+        {
+            tileGUIInfo.HandleMouseButtonClick(tileUnderMouse);
+        }*/
     }
 
     private TileData GetTileUnderMouse()
@@ -68,10 +96,39 @@ public class TileMap : MonoBehaviour
         return null;
     }
 
+    public void UpdateTexture(TileData tileUnderMouse)
+    {
+        TileMapTextureGenerator tileMapTextureGenerator = GetTileMapTextureGenerator();
+        tileMapTextureGenerator.UpdateTexture(_meshRenderer.sharedMaterial.mainTexture as Texture2D, tileUnderMouse);
+    }
+    
+    public Vector3[] GetRectVerticesByPoint(Vector3 positionVector)
+    {
+        Vector2Int tileByPoint = GetTileByPoint(positionVector);
+        TileMapGenerator tileMapGenerator = new TileMapGenerator(sizeX, sizeY, tileSize);
+        Mesh sharedMesh = _meshFilter.sharedMesh;
+        return tileMapGenerator.GetTrianglesOfATile(tileByPoint, sharedMesh.vertices);
+    }
+    
     public Vector2Int GetTileByPoint(Vector3 positionVector)
     {
         return new Vector2Int(Mathf.FloorToInt(positionVector.x / tileSize),
             Mathf.FloorToInt(positionVector.z / tileSize));
     }
     
+    private void BuildTexture()
+    {
+        TileMapTextureGenerator tileMapTextureGenerator = GetTileMapTextureGenerator();
+        Texture2D texture = tileMapTextureGenerator.GenerateTexture(_tileMapData);
+        _meshRenderer.sharedMaterial.mainTexture = texture;
+        
+        Debug.Log("Texture built!");
+    }
+    
+    public TileMapTextureGenerator GetTileMapTextureGenerator()
+    {
+        TileMapTextureGenerator tileMapTextureGenerator =
+            new TileMapTextureGenerator(textureAtlas, tileResolution, sizeX, sizeY);
+        return tileMapTextureGenerator;
+    }
 }
