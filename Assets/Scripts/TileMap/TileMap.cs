@@ -17,7 +17,7 @@ public class TileMap : MonoBehaviour
     [SerializeField] private TileMapData _tileMapData;
     [SerializeField] private TileTypesPanel _tileTypesPanel;
     
-    [SerializeField] private Texture2D textureAtlas;
+    public Texture2D textureAtlas;
     
     
     private MeshFilter _meshFilter;

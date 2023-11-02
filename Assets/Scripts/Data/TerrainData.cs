@@ -4,15 +4,17 @@ namespace Data
     {
     
         public TerrainType Type { get; set; }
-        public MaterialData MaterialData { get; set; }
-        public float Height { get; }
+        
         public MaterialProperties MaterialProperties { get; set; }
+        
+        public float Height { get; }
+        
 
-        public TerrainData(TerrainType type, float height, MaterialData materialData)
+        public TerrainData(TerrainType type, float height, MaterialProperties materialProperties)
         {
             Type = type;
             Height = height;
-            MaterialData = materialData;
+            MaterialProperties = materialProperties;
         }
     }
 }
