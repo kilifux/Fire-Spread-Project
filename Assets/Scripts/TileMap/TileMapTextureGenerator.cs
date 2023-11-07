@@ -55,10 +55,13 @@ public class TileMapTextureGenerator : MonoBehaviour
         {
             for (int x = 0; x < _tileSizeX; x++)
             {
-                TileData tileData = tileMapData.GetTileData(x, y);
-                int textureIndex = MapTerrainToTexture(tileData.TerrainData.Type);
-                Color[] extractedTexture = _extractedTextures[textureIndex];
-                texture.SetPixels(x * _tileResolution, y * _tileResolution, _tileResolution, _tileResolution, extractedTexture);
+                if (tileMapData != null)
+                {
+                    TileData tileData = tileMapData.GetTileData(x, y);
+                    int textureIndex = MapTerrainToTexture(tileData.TerrainData.Type);
+                    Color[] extractedTexture = _extractedTextures[textureIndex];
+                    texture.SetPixels(x * _tileResolution, y * _tileResolution, _tileResolution, _tileResolution, extractedTexture);
+                }
             }
         }
 

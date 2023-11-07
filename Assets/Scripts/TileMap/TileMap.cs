@@ -10,15 +10,14 @@ public class TileMap : MonoBehaviour
 {
     [SerializeField] private int sizeX = 24;
     [SerializeField] private int sizeY = 24;
-    [SerializeField] private float tileSize = 8f;
-    [SerializeField] private int tileResolution = 16;
+    [SerializeField] public float tileSize = 8f;
+    public int tileResolution = 16;
 
     [SerializeField] private TileGUIInfo tileGUIInfo;
-    [SerializeField] private TileMapData _tileMapData;
+    [SerializeField] public TileMapData _tileMapData;
     [SerializeField] private TileTypesPanel _tileTypesPanel;
     
     public Texture2D textureAtlas;
-    
     
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
@@ -61,23 +60,48 @@ public class TileMap : MonoBehaviour
 
     private void OnMouseDown()
     {
-        /*TileData tileUnderMouse = GetTileUnderMouse();
+        TileData tileUnderMouse = GetTileUnderMouse();
         if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject() && _tileTypesPanel.IsButtonSelected())
         {
             TerrainType currentlySelectedTerrainType = _tileTypesPanel.CurrentlySelectedTerrainType;
             tileUnderMouse.TerrainData.Type = currentlySelectedTerrainType;
             tileUnderMouse.TerrainData.MaterialProperties = _tileTypesPanel.GetPropertiesForCurrentSelection();
 
-            //ResetBurningDistance(tileUnderMouse);
+            ResetBurningDistance(tileUnderMouse);
             UpdateTexture(tileUnderMouse);
             tileUnderMouse.IsBurning = false;
         }
         else
         {
             tileGUIInfo.HandleMouseButtonClick(tileUnderMouse);
-        }*/
+        }
     }
+    
+    private void ResetBurningDistance(TileData tileData)
+    {
+        string tileKey = tileData.PositionX.ToString() + tileData.PositionY.ToString();
 
+        for (int x = tileData.PositionX - 1; x <= tileData.PositionX + 1; x++)
+        {
+            if (x < 0 || x >= _tileMapData.GetTileData().Length)
+                continue;
+
+            for (int y = tileData.PositionY - 1; y <= tileData.PositionY + 1; y++)
+            {
+                if (y < 0 || y >= _tileMapData.GetTileData()[x].Length)
+                    continue;
+                if (x == tileData.PositionX && y == tileData.PositionY)
+                    continue;
+
+                if (_tileMapData.GetTileData(x, y).FireSpreadingDistance.ContainsKey(tileKey))
+                {
+                    _tileMapData.GetTileData(x, y).FireSpreadingDistance[tileKey] = 0.0f;
+                }
+            }
+            
+        }
+    }
+    
     private TileData GetTileUnderMouse()
     {
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
@@ -89,7 +113,6 @@ public class TileMap : MonoBehaviour
         {
             Vector3 hitPointPositionVector = gameObject.transform.InverseTransformPoint(hitInfo.point);
             Vector2Int tileByPoint = GetTileByPoint(hitPointPositionVector);
-            Debug.Log(hitInfo.point);
             return _tileMapData.GetTileData(tileByPoint.x, tileByPoint.y);
         }
 
@@ -131,4 +154,5 @@ public class TileMap : MonoBehaviour
             new TileMapTextureGenerator(textureAtlas, tileResolution, sizeX, sizeY);
         return tileMapTextureGenerator;
     }
+    
 }
