@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(Renderer))]
 public class TileMouse : MonoBehaviour
 {
     [SerializeField] private TileMap tileMap;

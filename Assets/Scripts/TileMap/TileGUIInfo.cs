@@ -1,11 +1,12 @@
 using Data;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TileGUIInfo : MonoBehaviour
 {
     public GameObject tileInfoPanel;
-    public Text tileTypeName;
+    public TextMeshProUGUI tileTypeName;
 
     public TileData CurrentlySelectedTile { get; private set; }
 
