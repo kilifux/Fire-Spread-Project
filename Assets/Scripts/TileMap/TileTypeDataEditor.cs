@@ -12,9 +12,9 @@ public class TileTypeDataEditor : MonoBehaviour
     
     private void Start()
     {
-        //HidePanel();
+        HidePanel();
     }
-
+    
     public void StartEditing(MaterialProperties properties)
     {
         SetMaterialProperties(properties);

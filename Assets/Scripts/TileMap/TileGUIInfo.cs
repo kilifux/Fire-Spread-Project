@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class TileGUIInfo : MonoBehaviour
 {
-    public GameObject tileInfoPanel;
-    public TextMeshProUGUI tileTypeName;
+    [SerializeField] private GameObject tileInfoPanel;
+    [SerializeField] private TextMeshProUGUI tileTypeName;
 
     public TileData CurrentlySelectedTile { get; private set; }
 
@@ -19,19 +19,9 @@ public class TileGUIInfo : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && tileUnderMouse != null)
         {
-            FillPanelInfo(tileUnderMouse);
+            tileTypeName.text = tileUnderMouse.TerrainData.Type.ToString();
             CurrentlySelectedTile = tileUnderMouse;
             tileInfoPanel.SetActive(true);
         }
-    }
-    
-    public void ClosePanel()
-    {
-        tileInfoPanel.SetActive(false);
-    }
-    
-    private void FillPanelInfo(TileData tileUnderMouse)
-    {
-        tileTypeName.text = tileUnderMouse.TerrainData.Type.ToString();
     }
 }

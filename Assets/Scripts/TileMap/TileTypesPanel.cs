@@ -7,17 +7,17 @@ using UnityEngine.UI;
 
 public class TileTypesPanel : MonoBehaviour
 {
-    public GameObject TerrainTypesPanel;
-    public TileTypeDataEditor TileTypeDataEditor;
-    public GameObject buttonPrefab;
+    [SerializeField] private GameObject terrainTypesPanel;
+    [SerializeField] private TileTypeDataEditor tileTypeDataEditor;
+    [SerializeField] private GameObject buttonPrefab;
 
-    public TileMap TileMap;
+    [SerializeField] private TileMap tileMap;
 
-    private List<GameObject> _terrainButtons = new List<GameObject>();
+    private List<GameObject> _terrainButtons = new();
 
     private GameObject _currentlySelectedButton;
     public TerrainType CurrentlySelectedTerrainType { get; private set; }
-    private Dictionary<TerrainType, MaterialProperties> _materialProperties = new Dictionary<TerrainType,MaterialProperties>();
+    private Dictionary<TerrainType, MaterialProperties> _materialProperties = new();
 
     private GameObject _buttonHighlight;
     private bool _isInEditMode;
@@ -26,7 +26,7 @@ public class TileTypesPanel : MonoBehaviour
     {
         GenerateButtonsForTileTypes();
     }
-
+    
     public bool IsButtonSelected()
     {
         return _currentlySelectedButton != null;
@@ -34,7 +34,7 @@ public class TileTypesPanel : MonoBehaviour
 
     public void OnSaveTypeEditing()
     {
-        MaterialProperties materialProperties = TileTypeDataEditor.FinishEditing();
+        MaterialProperties materialProperties = tileTypeDataEditor.FinishEditing();
         _materialProperties[CurrentlySelectedTerrainType] = materialProperties;
 
         CleanupEditingState();
@@ -42,7 +42,7 @@ public class TileTypesPanel : MonoBehaviour
 
     public void OnCancelTypeEditing()
     {
-        TileTypeDataEditor.CancelEditing();
+        tileTypeDataEditor.CancelEditing();
         CleanupEditingState();
     }
 
@@ -56,10 +56,10 @@ public class TileTypesPanel : MonoBehaviour
         TerrainType[] terrainTypesValues = MaterialPropertiesFactory.GetAllowedInitialTerrainTypes();
         InitTerrainTypeMaterialProperties(terrainTypesValues);
         
-        TileMapTextureGenerator tileMapTextureGenerator = TileMap.GetTileMapTextureGenerator();
+        TileMapTextureGenerator tileMapTextureGenerator = tileMap.GetTileMapTextureGenerator();
         List<Color[]> texturesFromAtlas = tileMapTextureGenerator.ExtractTexturesFromAtlas();
 
-        RectTransform parentRectTransform = TerrainTypesPanel.transform.GetComponent<RectTransform>();
+        RectTransform parentRectTransform = terrainTypesPanel.transform.GetComponent<RectTransform>();
         foreach (TerrainType terrainTypesValue in terrainTypesValues)
         {
             Texture2D texture2D = GetTextureForTerrainType(tileMapTextureGenerator, terrainTypesValue, texturesFromAtlas);
@@ -68,12 +68,11 @@ public class TileTypesPanel : MonoBehaviour
 
             RectTransform buttonRectTransform = button.transform.GetComponent<RectTransform>();
             float rectWidth = buttonRectTransform.rect.width / terrainTypesValues.Length;
+            float rectHeight = buttonRectTransform.rect.height / terrainTypesValues.Length;
             int buttonOffset = Array.IndexOf(terrainTypesValues, terrainTypesValue);
-            button.transform.localPosition = new Vector3(rectWidth * 2 + (rectWidth * 8 * buttonOffset),
-                (-parentRectTransform.rect.height / 2), 0);
+            button.transform.localPosition = new Vector3(rectWidth * 2,
+                (-rectHeight * 5 - rectHeight * buttonOffset * 8), 0);
         }
-
-        SetPanelWidth(terrainTypesValues, parentRectTransform);
     }
 
     private void InitTerrainTypeMaterialProperties(TerrainType[] terrainTypesValues)
@@ -85,19 +84,9 @@ public class TileTypesPanel : MonoBehaviour
         }
     }
 
-    private void SetPanelWidth(TerrainType[] terrainTypesValues, RectTransform parentRectTransform)
-    {
-        GameObject terrainButton = _terrainButtons[0];
-        RectTransform buttonRect = terrainButton.transform.GetComponent<RectTransform>();
-        Rect rect = buttonRect.rect;
-        float maxWidth = (rect.width * 2 * terrainTypesValues.Length);
-        Rect parentRect = parentRectTransform.rect;
-        parentRectTransform.sizeDelta = new Vector2(maxWidth, parentRect.height);
-    }
-
     private GameObject CreateButton(TerrainType terrainTypesValue, Texture2D texture2D)
     {
-        GameObject button = Instantiate(buttonPrefab, TerrainTypesPanel.transform, false);
+        GameObject button = Instantiate(buttonPrefab, terrainTypesPanel.transform, false);
         button.GetComponent<CustomClickHandler>().onLeft.AddListener(() => HandleLeftButtonClick(button, terrainTypesValue));
         button.GetComponent<CustomClickHandler>().onRight.AddListener(() => HandleRightButtonClick(button, terrainTypesValue));
 
@@ -113,7 +102,7 @@ public class TileTypesPanel : MonoBehaviour
         int terrainIndex = tileMapTextureGenerator.MapTerrainToTexture(terrainTypesValue);
         Color[] texturePixels = texturesFromAtlas[terrainIndex];
 
-        Texture2D texture2D = new Texture2D(TileMap.tileResolution, TileMap.tileResolution);
+        Texture2D texture2D = new Texture2D(tileMap.tileResolution, tileMap.tileResolution);
         texture2D.SetPixels(texturePixels);
         texture2D.Apply();
         return texture2D;
@@ -121,28 +110,37 @@ public class TileTypesPanel : MonoBehaviour
 
     private void HandleLeftButtonClick(GameObject clickedButton, TerrainType terrainTypesValue)
     {
-        if (clickedButton != _currentlySelectedButton && !_isInEditMode)
+        if (clickedButton != _currentlySelectedButton && _isInEditMode)
+        {
+            tileTypeDataEditor.CancelEditing();
+            Button button = clickedButton.GetComponent<Button>();
+            button.Select();
+            _currentlySelectedButton = clickedButton;
+            CurrentlySelectedTerrainType = terrainTypesValue;
+            AddBackgroundHighlightToButton(clickedButton);
+            SetPanelColor(new Color(0.1f, 0.1f, 0.1f, 0.5f));
+        }
+        else if (clickedButton != _currentlySelectedButton && !_isInEditMode)
         {
             Button button = clickedButton.GetComponent<Button>();
             button.Select();
             _currentlySelectedButton = clickedButton;
             CurrentlySelectedTerrainType = terrainTypesValue;
             AddBackgroundHighlightToButton(clickedButton);
-            SetPanelColor(new Color(1f, 1f, 1f, 0.8f));
-            Debug.Log("Button clicked");
+            SetPanelColor(new Color(0.1f, 0.1f, 0.1f, 0.5f));
         }
         else
         {
             _currentlySelectedButton = null;
+            tileTypeDataEditor.CancelEditing();
             ClearTypesPanelHighlight();
-            Debug.Log("Button unselected");
         }
     }
 
     private void ClearTypesPanelHighlight()
     {
         RemoveHighlight();
-        SetPanelColor(new Color(1f, 1f, 1f, 0.4f));
+        SetPanelColor(new Color(0f, 0f, 0f, 0.4f));
     }
 
     private void HandleRightButtonClick(GameObject clickedButton, TerrainType terrainTypesValue)
@@ -152,14 +150,16 @@ public class TileTypesPanel : MonoBehaviour
             _isInEditMode = true;
             ClearTypesPanelHighlight();
             _currentlySelectedButton = clickedButton;
-
+            AddBackgroundHighlightToButton(clickedButton);
             CurrentlySelectedTerrainType = terrainTypesValue;
-            TileTypeDataEditor.StartEditing(_materialProperties[terrainTypesValue]);
+            tileTypeDataEditor.StartEditing(_materialProperties[terrainTypesValue]);
+            
         }
         else
         {
+            RemoveHighlight();
             CleanupEditingState();
-            TileTypeDataEditor.CancelEditing();
+            tileTypeDataEditor.CancelEditing();
         }
     }
 
@@ -179,11 +179,11 @@ public class TileTypesPanel : MonoBehaviour
         imageGameObject.transform.SetParent(parentButton.transform);
 
         Image image = imageGameObject.AddComponent<Image>();
-        image.color = new Color(0.2f, 0.0f, 1.0f, 0.3f);
+        image.color = new Color(1f, 1f, 1f, 0.8f);
 
-        Vector3 pos = new Vector3(rect.size.x / 2, 0, -1);
+        Vector3 pos = new Vector3(rect.size.x / 2, rect.size.y - 130, -1);
         imageGameObject.transform.localPosition = pos;
-        imageGameObject.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(rect.size.x / 1.5f, rect.size.y / 1.5f);
+        imageGameObject.transform.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 10);
 
         RemoveHighlight();
         _buttonHighlight = imageGameObject;
@@ -191,7 +191,7 @@ public class TileTypesPanel : MonoBehaviour
 
     private void SetPanelColor(Color color)
     {
-        Image component = TerrainTypesPanel.GetComponent<Image>();
+        Image component = terrainTypesPanel.GetComponent<Image>();
         component.color = color;
     }
 

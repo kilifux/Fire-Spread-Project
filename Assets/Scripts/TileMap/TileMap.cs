@@ -8,10 +8,10 @@ using UnityEngine;
 [RequireComponent(typeof(MeshCollider))]
 public class TileMap : MonoBehaviour
 {
-    public TileGUIInfo tileGuiInfo;
-    public TileTypesPanel tileTypesPanel;
-    public float tileSize = 1f;
+    [SerializeField] private TileGUIInfo tileGuiInfo;
+    [SerializeField] private TileTypesPanel tileTypesPanel;
     
+    public float tileSize = 1f;
     public int tileResolution = 16;
     public Texture2D textureAtlas;
 
@@ -42,7 +42,7 @@ public class TileMap : MonoBehaviour
             tileGuiInfo.HandleMouseButtonClick(tileUnderMouse);
         }
     }
-
+    
     private void ResetBurningDistance(TileData tileData)
     {
         string tileKey = tileData.PositionX.ToString() + tileData.PositionY.ToString();
@@ -116,8 +116,6 @@ public class TileMap : MonoBehaviour
         TileMapTextureGenerator tileMapTextureGenerator = GetTileMapTextureGenerator();
         Texture2D texture = tileMapTextureGenerator.GenerateTexture(_tileMapData);
         _meshRenderer.sharedMaterial.mainTexture = texture;
-        
-        Debug.Log("Texture built!");
     }
 
     public void UpdateTexture(TileData tileUnderMouse)
