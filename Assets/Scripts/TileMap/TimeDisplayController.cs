@@ -1,9 +1,10 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TimeDisplayController : MonoBehaviour
 {
-    public Text timerDisplay;
+    public TextMeshProUGUI timerDisplay;
 
     private void Start()
     {

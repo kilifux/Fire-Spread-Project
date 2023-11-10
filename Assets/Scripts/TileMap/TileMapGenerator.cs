@@ -1,40 +1,37 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Data;
-using Random = UnityEngine.Random;
+using UnityEngine;
 
 public class TileMapGenerator
 {
-    private int _sizeX;
-    private int _sizeZ;
-    private float _tileSize;
+    private int size_x;
+    private int size_z;
+    private float tileSize;
 
-    public TileMapGenerator(int size_X, int size_Z, float tileSize)
+    public TileMapGenerator(int sizeX, int sizeZ, float tileSize)
     {
-        _sizeX = size_X;
-        _sizeZ = size_Z;
-        _tileSize = tileSize;
+        size_x = sizeX;
+        size_z = sizeZ;
+        this.tileSize = tileSize;
     }
-
-    public Mesh GenerateMap()
+    
+    public Mesh GenerateMap(TileMapData tileMapData)
     {
-        int tilesCount = _sizeX * _sizeZ;
+        int tilesCount = size_x * size_z;
 
-        int verticesSizeX = _sizeX + 1;
-        int verticesSizeZ = _sizeZ + 1;
-
-        int verticesAmount = verticesSizeX * verticesSizeZ;
-        int trianglesAmount = 2 * tilesCount;
+        int verticesSizeX = size_x + 1;
+        int verticesSizeZ = size_z + 1;
         
-        Vector3[] mapVertices = new Vector3[verticesAmount];
-        Vector3[] normalVertices = new Vector3[verticesAmount];
-        Vector2[] uvVertices = new Vector2[verticesAmount];
+        int verticesCount = verticesSizeX * verticesSizeZ;
+        int trianglesCount = 2 * tilesCount;
+        Vector3[] mapVertices = new Vector3[verticesCount];
+        Vector3[] normalVertices = new Vector3[verticesCount];
+        Vector2[] uvVertices = new Vector2[verticesCount];
+        
+        int[] triangleVertices = new int[trianglesCount * 3];
 
-        int[] triangleVertices = new int[trianglesAmount * 3];
-
-        InitMapVertices(verticesSizeZ, verticesSizeX, mapVertices, normalVertices, uvVertices);
+        InitMapVertices(verticesSizeZ, verticesSizeX, mapVertices, normalVertices, uvVertices, tileMapData);
         InitTriangleVertices(verticesSizeX, triangleVertices);
 
         Mesh mesh = new Mesh
@@ -46,26 +43,11 @@ public class TileMapGenerator
         return mesh;
     }
 
-    private void InitMapVertices(int verticesSizeZ, int verticesSizeX, Vector3[] mapVertices, Vector3[] normalVertices,
-        Vector2[] uvVertices)
-    {
-        for (int z = 0; z < verticesSizeZ; z++)
-        {
-            for (int x = 0; x < verticesSizeX; x++)
-            {
-                int currentVertexIndex = z * verticesSizeX + x;
-                mapVertices[currentVertexIndex] = new Vector3(x * _tileSize, Random.Range(0.5f, 8f), z * _tileSize);
-                normalVertices[currentVertexIndex] = Vector3.up;
-                uvVertices[currentVertexIndex] = new Vector2((float) x / verticesSizeX, (float) z / verticesSizeZ);
-            }
-        }
-    }
-    
     private void InitTriangleVertices(int verticesSizeX, int[] triangleVertices)
     {
-        for (int z = 0; z < _sizeZ; z++)
+        for (int z = 0; z < size_z; z++)
         {
-            for (int x = 0; x < _sizeX; x++)
+            for (int x = 0; x < size_x; x++)
             {
                 int triangleIndex = GetTriangleIndex(x, z);
                 int triangleVertexOffset = z * verticesSizeX + x;
@@ -80,25 +62,41 @@ public class TileMapGenerator
             }
         }
     }
-    
+
     public Vector3[] GetTrianglesOfATile(Vector2Int coordinates, Vector3[] meshVertices)
     {
         Vector3[] result = new Vector3[4];
-        result[0] = meshVertices[coordinates.y * (_sizeX + 1) + coordinates.x];
-        result[1] = meshVertices[coordinates.y * (_sizeX + 1) + coordinates.x + 1];
-        result[2] = meshVertices[(coordinates.y + 1) * (_sizeX + 1) + coordinates.x];
-        result[3] = meshVertices[(coordinates.y + 1) * (_sizeX + 1) + coordinates.x + 1];
+        result[0] = meshVertices[coordinates.y * (size_x + 1) + coordinates.x];
+        result[1] = meshVertices[coordinates.y * (size_x + 1) + coordinates.x + 1];
+        result[2] = meshVertices[(coordinates.y + 1) * (size_x + 1) + coordinates.x];
+        result[3] = meshVertices[(coordinates.y + 1) * (size_x + 1) + coordinates.x + 1];
 
         return result;
     }
     
     private int GetTriangleIndex(int x, int y)
     {
-        int squareIndex = y * _sizeX + x;
+        int squareIndex = y * size_x + x;
         int triangleIndex = squareIndex * 6;
         return triangleIndex;
     }
-    
+
+    private void InitMapVertices(int verticesSizeZ, int verticesSizeX, Vector3[] mapVertices, Vector3[] normalVertices,
+        Vector2[] uvVertices, TileMapData tileMapData)
+    {
+        for (int z = 0; z < verticesSizeZ; z++)
+        {
+            for (int x = 0; x < verticesSizeX; x++)
+            {
+                float vertexHeight = GetMeanVertexHeight(x, z, tileMapData);
+                int currentVertexIndex = z * verticesSizeX + x;
+                mapVertices[currentVertexIndex] = new Vector3(x * tileSize, vertexHeight, z * tileSize);
+                normalVertices[currentVertexIndex] = Vector3.up;
+                uvVertices[currentVertexIndex] = new Vector2((float) x / (verticesSizeX - 1), (float) z / (verticesSizeZ - 1));
+            }
+        }
+    }
+
     private float GetMeanVertexHeight(int vertexX, int vertexY, TileMapData tileMapData)
     {
         List<TileData> tiles = new List<TileData>();

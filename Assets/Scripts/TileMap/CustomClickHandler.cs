@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class CustomClickHandler : MonoBehaviour
+public class CustomClickHandler : MonoBehaviour, IPointerClickHandler
 {
     public UnityEvent onLeft;
     public UnityEvent onRight;

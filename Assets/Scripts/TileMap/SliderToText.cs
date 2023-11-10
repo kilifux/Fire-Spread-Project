@@ -1,13 +1,14 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SliderToText : MonoBehaviour
 {
     public string unitSuffix;
-    private Text textComponent;
+    private TextMeshProUGUI textComponent;
  
     void Awake() {
-        textComponent = gameObject.GetComponentInChildren<Text>();
+        textComponent = gameObject.GetComponentInChildren<TextMeshProUGUI>();
     }
  
     public void SetSliderValue(float sliderValue)

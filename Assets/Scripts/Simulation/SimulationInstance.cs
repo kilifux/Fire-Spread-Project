@@ -14,7 +14,7 @@ public class SimulationInstance : MonoBehaviour
     
     public float windDirection = 0f;
     public float windSpeed = 20.0f;
-    public float moistureContent = 0.7f;
+    public float moistureContent = 0.1f;
     
     public TileGUIInfo tileGuiInfo;
     public TimeDisplayController timeDisplayController;
