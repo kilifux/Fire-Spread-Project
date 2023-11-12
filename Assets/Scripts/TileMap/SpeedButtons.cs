@@ -14,7 +14,7 @@ public class SpeedButtons : MonoBehaviour
     public GameObject fastestButton;
 
     private readonly Color _normalColor = Color.white; 
-    private readonly Color _highlightColor = new Color(0.3686275f, 0.8235294f, 0.427451f); 
+    private readonly Color _highlightColor = new Color(0.4f, 0.4f, 0.4f); 
     
     void Start()
     {
